@@ -19,10 +19,7 @@ if (Meteor.isClient) {
 
       var title = event.target.title.value;
 
-      Resolutions.insert({
-        title: title,
-        createdAt: new Date()
-      });
+      Meteor.call('addResolution', title);
 
       event.target.title.value = "";
     },
@@ -33,11 +30,15 @@ if (Meteor.isClient) {
 
   Template.resolution.events({
     'click .toggle-checked': function () {
-      Resolutions.update(this._id, {$set: {checked: !this.checked}});
+      Meteor.call('updateResolution', this._id, !this.checked);
     },
     'click .delete': function () {
-      Resolutions.remove(this._id);
+      Meteor.call('removeResolution', this._id);
     }
+  });
+
+  Accounts.ui.config({
+    passwordSignupFields: "USERNAME_ONLY"
   });
 }
 
@@ -46,3 +47,18 @@ if (Meteor.isServer) {
     // code to run on server at startup
   });
 }
+
+Meteor.methods({
+  'addResolution': function (title) {
+    Resolutions.insert({
+      title: title,
+      createdAt: new Date()
+    });
+  },
+  'removeResolution': function (id) {
+    Resolutions.remove(id);
+  },
+  'updateResolution': function (id, checked) {
+    Resolutions.update(id, {$set: {checked: checked}});
+  }
+});
