@@ -3,7 +3,13 @@ Resolutions = new Mongo.Collection('resolutions');
 if (Meteor.isClient) {
   Template.body.helpers({
     resolutions: function () {
+      if (Session.get('hideFinished')) {
+        return Resolutions.find({checked: {$ne: true}});
+      }
       return Resolutions.find();
+    },
+    hideFinished: function () {
+      return Session.get('hideFinished');
     }
   });
 
@@ -19,6 +25,9 @@ if (Meteor.isClient) {
       });
 
       event.target.title.value = "";
+    },
+    'change .hide-finished': function (event) {
+      Session.set('hideFinished', event.target.checked);
     }
   });
 
